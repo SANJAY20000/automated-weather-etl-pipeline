@@ -1,0 +1,46 @@
+This perfectly breaks down the specific technologies and actions happening at each step of pipeline.
+
+
+☁️ Automated Weather ETL Pipeline
+├── 1. Source Data
+│   └── Open-Meteo REST API (Nested JSON Payload)
+│       ├── Varanasi
+│       ├── Lucknow
+│       └── Delhi
+│
+├── 2. Orchestration Layer
+│   └── Databricks Workflows (Scheduled Job)
+│       └── Trigger: Daily at 08:00 AM IST
+│
+├── 3. Extraction (Python)
+│   └── requests.get()
+│       └── Loops through target cities to fetch yesterday's weather
+│
+├── 4. Transformation (PySpark)
+│   ├── spark.createDataFrame()
+│   ├── Schema Enforcement: Cast strings to proper Date objects
+│   └── Data Cleaning: Impute missing precip/wind values via .na.fill()
+│
+├── 5. Compute Workaround (Pandas)
+│   └── spark_df.toPandas()
+│       └── Collects data to Driver Node to bypass Serverless DML limits
+│
+└── 6. Loading (PostgreSQL)
+    └── SQLAlchemy + psycopg2
+        ├── Establishes secure SSL connection
+        └── Appends data to 'daily_weather_recent' table in Neon Cloud
+
+
+2. The Linear ASCII Flowchart
+
++----------------+      +-------------------+      +-----------------------+
+|   REST API     |      |  Python Requests  |      |   PySpark DataFrame   |
+| (Open-Meteo)   | ---> |  (Extract JSON)   | ---> |  (Transform & Clean)  |
++----------------+      +-------------------+      +-----------------------+
+                                                               |
+                                                               | toPandas()
+                                                               v
++----------------+      +-------------------+      +-----------------------+
+| Neon Postgres  |      | SQLAlchemy Engine |      |    Pandas DataFrame   |
+| (Data Landing) | <--- |   (Secure Load)   | <--- | (Serverless Fallback) |
++----------------+      +-------------------+      +-----------------------+

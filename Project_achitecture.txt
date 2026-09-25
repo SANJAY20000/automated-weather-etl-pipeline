@@ -44,3 +44,5 @@ This perfectly breaks down the specific technologies and actions happening at ea
 | Neon Postgres  |      | SQLAlchemy Engine |      |    Pandas DataFrame   |
 | (Data Landing) | <--- |   (Secure Load)   | <--- | (Serverless Fallback) |
 +----------------+      +-------------------+      +-----------------------+
+
+Note : This was new version with huggingface
